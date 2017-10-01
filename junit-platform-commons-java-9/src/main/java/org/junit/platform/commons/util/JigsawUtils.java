@@ -13,6 +13,7 @@ package org.junit.platform.commons.util;
 import static org.apiguardian.api.API.Status.INTERNAL;
 
 import java.io.IOException;
+import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReader;
 import java.lang.module.ModuleReference;
 import java.lang.module.ResolvedModule;
@@ -52,10 +53,15 @@ public class JigsawUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JigsawUtils.class);
 
 	public static List<Class<?>> findAllClassesInModule(String moduleName, ClassFilter filter) {
-		logger.config(() -> "findAllClassesInModule('" + moduleName + "')");
+		Preconditions.notBlank(moduleName, "Module name must not be null or empty");
+		Preconditions.notNull(filter, "Class filter must not be null");
+
+		logger.debug(() -> "Looking for classes in module: " + moduleName);
 		Predicate<String> moduleNamePredicate = moduleName::equals;
 		if (ALL_MODULES.equals(moduleName)) {
-			moduleNamePredicate = name -> true;
+			Set<String> systemModules = ModuleFinder.ofSystem().findAll().stream().map(
+				reference -> reference.descriptor().name()).collect(Collectors.toSet());
+			moduleNamePredicate = name -> !systemModules.contains(name);
 		}
 		return scan(boot(moduleNamePredicate), filter, JigsawUtils.class.getClassLoader());
 	}
@@ -69,12 +75,13 @@ public class JigsawUtils {
 
 	// scan for classes
 	private static List<Class<?>> scan(Set<ModuleReference> references, ClassFilter filter, ClassLoader loader) {
-		logger.config(() -> "scan(" + references + ")");
+		logger.debug(() -> "Scanning " + references.size() + " module references: " + references);
 		ModuleReferenceScanner scanner = new ModuleReferenceScanner(filter, loader);
 		List<Class<?>> classes = new ArrayList<>();
 		for (ModuleReference reference : references) {
 			classes.addAll(scanner.scan(reference));
 		}
+		logger.debug(() -> "Found " + classes.size() + " classes: " + classes);
 		return Collections.unmodifiableList(classes);
 	}
 
