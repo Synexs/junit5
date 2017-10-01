@@ -24,8 +24,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.lang.model.SourceVersion;
-
 import org.apiguardian.api.API;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.logging.Logger;
@@ -46,11 +44,20 @@ import org.junit.platform.commons.logging.LoggerFactory;
 @API(status = INTERNAL, since = "1.1")
 public class JigsawUtils {
 
+	/**
+	 * Special module name to scan all resolved modules found in the boot layer configuration.
+	 */
+	private static final String ALL_MODULES = "ALL-MODULES";
+
 	private static final Logger logger = LoggerFactory.getLogger(JigsawUtils.class);
 
 	public static List<Class<?>> findAllClassesInModule(String moduleName, ClassFilter filter) {
-		logger.config(() -> "findAllClassesInModule(" + moduleName + ")");
-		return scan(boot(moduleName::equals), filter, JigsawUtils.class.getClassLoader());
+		logger.config(() -> "findAllClassesInModule('" + moduleName + "')");
+		Predicate<String> moduleNamePredicate = moduleName::equals;
+		if (ALL_MODULES.equals(moduleName)) {
+			moduleNamePredicate = name -> true;
+		}
+		return scan(boot(moduleNamePredicate), filter, JigsawUtils.class.getClassLoader());
 	}
 
 	// collect module references from boot module layer
@@ -62,6 +69,7 @@ public class JigsawUtils {
 
 	// scan for classes
 	private static List<Class<?>> scan(Set<ModuleReference> references, ClassFilter filter, ClassLoader loader) {
+		logger.config(() -> "scan(" + references + ")");
 		ModuleReferenceScanner scanner = new ModuleReferenceScanner(filter, loader);
 		List<Class<?>> classes = new ArrayList<>();
 		for (ModuleReference reference : references) {
@@ -92,7 +100,7 @@ public class JigsawUtils {
 					// @formatter:off
 					return names.filter(name -> name.endsWith(".class"))
 							.map(this::className)
-							.filter(SourceVersion::isIdentifier)
+							.filter(name -> !name.equals("module-info"))
 							.filter(classFilter::match)
 							.map(this::loadClassUnchecked)
 							.filter(classFilter::match)
