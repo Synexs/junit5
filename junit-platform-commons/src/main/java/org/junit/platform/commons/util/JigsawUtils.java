@@ -36,6 +36,14 @@ public class JigsawUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(JigsawUtils.class);
 
+	/**
+	 * Find all classes for the given module name.
+	 *
+	 * @param moduleName name of the module to scan
+	 * @param filter class filter to apply
+	 * @return an immutable list of all such classes found; never {@code null}
+	 * but potentially empty
+	 */
 	public static List<Class<?>> findAllClassesInModule(String moduleName, ClassFilter filter) {
 		logger.config(() -> "Basic version of findAllClassesInModule() always returns an empty list!");
 		return Collections.emptyList();
