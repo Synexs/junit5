@@ -46,6 +46,11 @@ import org.junit.platform.commons.logging.LoggerFactory;
 public class JigsawUtils {
 
 	/**
+	 * Version hint is set to {@code "9"} here.
+	 */
+	public static final String VERSION = "9";
+
+	/**
 	 * Special module name to scan all resolved modules found in the boot layer configuration.
 	 */
 	private static final String ALL_MODULES = "ALL-MODULES";
