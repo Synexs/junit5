@@ -31,6 +31,10 @@ on GitHub.
 * When running on Java 9 or higher the default implementations of `getVersion()` and
   `getArtifactId()` in the interface `TestEngine` ask the Java Platform Module System
   for these information.
+* New discovery selector `ModuleSelector` for scanning Java 9 modules for test classes.
+* New console launcher option `--select-module <name>` or `-o <name>`.
+* New console launcher option `--scan-module-path` for selecting all resolved modules
+  available on the boot layer configuration.
 
 [[release-notes-5.1.0-junit-jupiter]]
 ==== JUnit Jupiter
@@ -45,7 +49,7 @@ on GitHub.
 
 ===== New Features and Improvements
 
-* ❓
+* Support new JUnit Platform `ModuleSelector`.
 
 
 [[release-notes-5.1.0-junit-vintage]]
@@ -61,4 +65,4 @@ on GitHub.
 
 ===== New Features and Improvements
 
-* ❓
+* Support new JUnit Platform `ModuleSelector`.
